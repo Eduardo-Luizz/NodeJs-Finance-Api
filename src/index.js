@@ -17,11 +17,17 @@ const customers = [] // Banco de dados fake
 
 app.post('/', (request, response) => {
   const { cpf, name } = request.body;
-  const { id } = uuidv4();
+
+  const customerAlreadyExists = customers.some((customer) => customer.cpf === cpf); // some retorna true or false de acordo com a condicao 
+
+  if(customerAlreadyExists === true) {
+    return response.status(400).json({ error: "CPF já existe" });
+  }
+
   customers.push({
     cpf,
     name,
-    id,
+    id: uuidv4(),
     statement: []
   });
   return response.status(201).send(request.body);
