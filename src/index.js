@@ -15,7 +15,7 @@ const customers = [] // Banco de dados fake
 * statement [] 
 */
 
-app.post('/', (request, response) => {
+app.post("/", (request, response) => {
   const { cpf, name } = request.body;
 
   const customerAlreadyExists = customers.some((customer) => customer.cpf === cpf); // some retorna true or false de acordo com a condicao 
@@ -32,6 +32,17 @@ app.post('/', (request, response) => {
   });
   return response.status(201).send(request.body);
 }); 
+
+app.get( "/statement/:cpf", (request, response) => {
+  const { cpf } = request.params;
+  const customer = customers.find(customer => customer.cpf === cpf); // Percorre o customers e verifica se o cpf passado está dentro do array
+  
+  if(!customer) {
+    return response.status(400).json({ error: "CPF passado não existe" });
+  }
+  
+  return response.status(200).send(customer)
+});
 
 app.listen(3030);
 console.log('Starting server on port 3030');
