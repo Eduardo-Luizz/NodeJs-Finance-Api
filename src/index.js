@@ -33,8 +33,8 @@ app.post("/", (request, response) => {
   return response.status(201).send(request.body);
 }); 
 
-app.get( "/statement/:cpf", (request, response) => {
-  const { cpf } = request.params;
+app.get( "/statement", (request, response) => {
+  const { cpf } = request.headers; // Passando o cpf pelo header
   const customer = customers.find(customer => customer.cpf === cpf); // Percorre o customers e verifica se o cpf passado está dentro do array
   
   if(!customer) {
