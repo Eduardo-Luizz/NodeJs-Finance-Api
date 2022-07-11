@@ -15,6 +15,21 @@ const customers = [] // Banco de dados fake
 * statement [] 
 */
 
+// middleware valida cpf
+function verifyIfExistsAccountCPF(request, response, next) { // next define se o middleware segue ou para aonde está
+  const { cpf } = request.headers;
+
+  const customer = customers.find(customer => customer.cpf === cpf);
+
+  if(!customer) {
+    return response.status(400).json({ error: "CPF passado não existe" });
+  }
+
+  request.customer = customer; // Dessa maneira quem chama o middleware tem acesso ao customer
+
+  return next();
+}
+
 app.post("/", (request, response) => {
   const { cpf, name } = request.body;
 
@@ -33,15 +48,9 @@ app.post("/", (request, response) => {
   return response.status(201).send(request.body);
 }); 
 
-app.get( "/statement", (request, response) => {
-  const { cpf } = request.headers; // Passando o cpf pelo header
-  const customer = customers.find(customer => customer.cpf === cpf); // Percorre o customers e verifica se o cpf passado está dentro do array
-  
-  if(!customer) {
-    return response.status(400).json({ error: "CPF passado não existe" });
-  }
-  
-  return response.status(200).send(customer)
+app.get( "/statement", verifyIfExistsAccountCPF, (request, response) => {
+  const { customer } = request; // Busca essa informação de dentro do middleware
+  return response.json(customer.statement);
 });
 
 app.listen(3030);
