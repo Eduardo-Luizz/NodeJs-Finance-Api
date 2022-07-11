@@ -30,6 +30,20 @@ function verifyIfExistsAccountCPF(request, response, next) { // next define se o
   return next();
 }
 
+// Função que pega o balanco da conta
+function getbalance(statement) {
+  const balance = statement.reduce((acumulador, operation) => { // reduce pega as informações que forem passadas para ela e transforma essas informações em um único valor
+    if (operation.type === "credit") {
+      return acumulador + operation.amount;
+    } else {
+      return acumulador - operation.amount;
+    };
+  }, 0); // É preciso iniciar o reduce com algum valor
+
+  console.log(balance);
+  return balance;
+}
+
 app.post("/", (request, response) => {
   const { cpf, name } = request.body;
 
@@ -64,6 +78,26 @@ app.post( "/deposit", verifyIfExistsAccountCPF, (request, response) => {
     created_at: new Date(),
     type: "credit"
   }
+
+  customer.statement.push(statementOperation);
+
+  return response.status(201).send();
+});
+
+app.post( "/withdraw", verifyIfExistsAccountCPF, (request, response) => {
+  const { amount } = request.body; // Recebendo a quantida para fazer o saque
+  const { customer } = request;
+  const  balance  = getbalance(customer.statement);
+
+  if (balance < amount) {
+    return response.status(400).send({ error: "Fundos insuficientes para realizar o saque" });
+  }
+
+  const statementOperation = {
+    amount,
+    created_at: new Date(),
+    type: "debit"
+  };
 
   customer.statement.push(statementOperation);
 
