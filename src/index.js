@@ -129,5 +129,21 @@ app.get( "/account", verifyIfExistsAccountCPF, (request, response) => {
   return response.json(customer);
 });
 
+app.delete( "/account", verifyIfExistsAccountCPF, (request, response) => {
+  const { customer } = request;
+
+  customers.splice(customer, 1);
+
+  return response.status(200).json(customers);
+});
+
+app.get( "/balance", verifyIfExistsAccountCPF, (request, response) => {
+  const { customer } = request;
+  
+  const balance = getbalance(customer.statement);
+
+  return response.json(balance);
+})
+
 app.listen(3030);
 console.log('Starting server on port 3030');
